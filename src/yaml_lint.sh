@@ -1,5 +1,11 @@
 #!/bin/sh
 
+get_comments() {
+    lint_comment_url=$(cat ${GITHUB_EVENT_PATH} | jq -r .pull_request.comments_url)
+    comments="$(curl -s -S -H "Authorization: token ${GITHUB_ACCESS_TOKEN}" "${lint_comment_url}")"
+    printf "%s" "${comments}"
+}
+
 yaml_lint() {
 
     # gather output
