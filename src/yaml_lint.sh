@@ -47,16 +47,16 @@ ${lint_output}
         echo "lint: info: creating json"
         lint_payload=$(echo "${lint_comment_wrapper}" | jq -R --slurp '{body: .}')
         lint_comment_url=$(cat ${GITHUB_EVENT_PATH} | jq -r .pull_request.comments_url)
-        existing_comment=$(get_comments | jq '[.[] | select(.body | startswith("'"${header}"'"))] | first | .id')
-        echo "existing comment found: ${existing_comment}"
-        if [ "${existing_comment}" = "null" ]; then
+        existing_comment_url=$(get_comments | jq '[.[] | select(.body | startswith("'"${header}"'"))] | first | .url')
+        echo "existing comment found: ${existing_comment_url}"
+        if [ "${existing_comment_url}" != "null" ]; then
+            # update existing comment
+            echo "lint: info: updating existing comment ${existing_comment_url}"
+            echo "${lint_payload}" | curl -X PATCH -s -S -H "Authorization: token ${GITHUB_ACCESS_TOKEN}"  --header "Content-Type: application/json" --data @- "${existing_comment_url}"
+        else
             # new comment
             echo "lint: info: adding new comment"
             echo "${lint_payload}" | curl -s -S -H "Authorization: token ${GITHUB_ACCESS_TOKEN}" --header "Content-Type: application/json" --data @- "${lint_comment_url}" > /dev/null
-        else
-            # update existing comment
-            echo "lint: info: updating existing comment ${existing_comment}"
-            echo "${lint_payload}" | curl -s -S -H "Authorization: token ${GITHUB_ACCESS_TOKEN}" -X PATCH --header "Content-Type: application/json" --data @- "${lint_comment_url}/${existing_comment}" > /dev/null
         fi
     fi
 
