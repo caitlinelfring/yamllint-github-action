@@ -33,8 +33,7 @@ yaml_lint() {
     if [ "${GITHUB_EVENT_NAME}" == "pull_request" ] && [ "${yamllint_comment}" == "1" ] && [ ${lint_exit_code} -ne 0 ]; then
         header="<!-- yamllint -->"
 
-        lint_comment_wrapper="
-${header}
+        lint_comment_wrapper="${header}
 #### \`yamllint\` ${lint_comment_status}
 <details><summary>Show Output</summary>
 
