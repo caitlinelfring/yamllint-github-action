@@ -52,7 +52,14 @@ ${lint_output}
         if [ "${existing_comment_url}" != "null" ]; then
             # update existing comment
             echo "lint: info: updating existing comment ${existing_comment_url}"
-            echo "${lint_payload}" | curl -X PATCH -s -S -H "Authorization: token ${GITHUB_ACCESS_TOKEN}"  --header "Content-Type: application/json" --data @- "${existing_comment_url}"
+            set -x
+            echo "${lint_payload}" | curl \
+                -X PATCH \
+                -H "Authorization: token ${GITHUB_ACCESS_TOKEN}" \
+                --header "Content-Type: application/json" \
+                --data @- \
+                "${existing_comment_url}"
+            set +x
         else
             # new comment
             echo "lint: info: adding new comment"
